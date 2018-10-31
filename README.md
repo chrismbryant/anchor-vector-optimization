@@ -41,11 +41,21 @@ Consider the standard problem of handwritten digit recognition.
 
 ## Binary classification
 
-To begin translating our discussion of archetypes into a mathematical language compatible with machine learning, let us consider a toy problem of .
+To begin translating our discussion of archetypes into a mathematical language compatible with machine learning, let us consider a toy problem of distinguishing two classes of points on a sphere. In fact, let us make this more concrete by considering an alien planet inhabited only by two civilizations of creatures: green creatures and orange creatures. Given that we have some time to examine the planet first, if we come across a random creature, can we predict based on its location whether that creature will be green or orange?
+
+If the green and orange creatures don't like to interact with each other much, we would expect that the two civilizations are relatively separated geographically, perhaps each clustered around several colony centers.
 
 In its simplest form, the application of anchor vectors to the binary classification problem can be framed as the following: Is there some direction where the positive class of data is likely to be concentrated? If we assume that this is true,
 
+
+
 ### Loss Function
+
+To
+
+|Distance Product | Gaussian Kernel Density|
+|:---:|:---:|
+|![multiplicative_demo] | ![gaussian_demo]|
 
 ### "Charge" property
 
@@ -93,3 +103,5 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 
 [1-anchor]:images/2018-06-08/3-anchors.png
 [4s]: images/4s.png
+[multiplicative_demo]: images/distance_function_demo/multiplicative.png
+[gaussian_demo]: images/distance_function_demo/gaussian.png
