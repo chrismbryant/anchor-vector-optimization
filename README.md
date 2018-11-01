@@ -21,8 +21,23 @@ Sometimes, your experience necessitates that you expand your collection of arche
 
 In the following exploration, I will be developing an approach to machine learning that takes literally this idea of learning via repeated archetype comparison. We will begin with the simplified case of binary classification, i.e. distinguishing what something _is_ from what it _is not_. After that, we will generalize our analysis to multi-class classification, using the identification of hand-written digits as a case study. In the end, we will hopefully have a new perspective on how we might approach an arbitrary problem in machine learning.  
 
+[Back to top](#Contents)
+
 ---
 
+## Binary classification
+
+To begin translating our discussion of archetypes into a mathematical language compatible with machine learning, let us consider a toy problem of distinguishing two classes of points on a sphere. In fact, let us make this more concrete by considering an alien planet inhabited only by two civilizations of creatures: green creatures and orange creatures. Given that we have some time to examine the planet first, if we come across a random creature, can we predict based on its location whether that creature will be green or orange?
+
+If the green and orange creatures don't like to interact with each other much, we would expect the two civilizations to be relatively separated geographically, perhaps each clustered around several colony centers.
+
+|Sphere |Projection|
+|:---:|:---:|
+|![planet] | ![planet_flat]|
+
+In its simplest form, the application of anchor vectors to the binary classification problem can be framed as the following: Is there some direction where the positive class of data is likely to be concentrated? If we assume that this is true,
+
+???
 
 
 We might expect that we can obtain reasonable results by computing the similarity between
@@ -39,15 +54,7 @@ Consider the standard problem of handwritten digit recognition.
 * 28x28 square of grayscale pixels
 * unroll this into a vector embedded in 784-dimensional brightness-space where each dimension corresponds to one pixel and the value of the vector in that dimension is the brightness of the pixel, scaled between 0 and 1.
 
-## Binary classification
-
-To begin translating our discussion of archetypes into a mathematical language compatible with machine learning, let us consider a toy problem of distinguishing two classes of points on a sphere. In fact, let us make this more concrete by considering an alien planet inhabited only by two civilizations of creatures: green creatures and orange creatures. Given that we have some time to examine the planet first, if we come across a random creature, can we predict based on its location whether that creature will be green or orange?
-
-If the green and orange creatures don't like to interact with each other much, we would expect that the two civilizations are relatively separated geographically, perhaps each clustered around several colony centers.
-
-In its simplest form, the application of anchor vectors to the binary classification problem can be framed as the following: Is there some direction where the positive class of data is likely to be concentrated? If we assume that this is true,
-
-
+???
 
 ### Loss Function
 
@@ -57,6 +64,10 @@ To
 |:---:|:---:|
 |![multiplicative_demo] | ![gaussian_demo]|
 
+
+![multiplicative_pointy_demo]
+
+[multiplicative_pointy_demo]:images/distance_function_demo/multiplicative_pointy.png
 ### "Charge" property
 
 ### Negative anchors
@@ -101,7 +112,10 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 
 
 
-[1-anchor]:images/2018-06-08/3-anchors.png
-[4s]: images/4s.png
-[multiplicative_demo]: images/distance_function_demo/multiplicative.png
-[gaussian_demo]: images/distance_function_demo/gaussian.png
+[1-anchor]:images/2018-06-08/1-anchor.png
+[4s]:images/4s.png
+[multiplicative_demo]:images/distance_function_demo/multiplicative.png
+[gaussian_demo]:images/distance_function_demo/gaussian.png
+
+[planet]:images/aliens/angle=020.png
+[planet_flat]:images/aliens/flat.png
