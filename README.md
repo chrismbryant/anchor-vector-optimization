@@ -39,7 +39,7 @@ Unfortunately, the explorers had a limited expedition, so we don't know for sure
 
 ### Loss Function
 
-To understand what kind of 
+To understand what kind of
 
 |Distance Product | Gaussian Kernel Density|
 |:---:|:---:|
@@ -89,7 +89,7 @@ The work we have discussed so far applies well when our data lives in a [simply 
 ![y_hat_multiclass]
 ![J_multiclass]
 ![blocks_multiclass]
-
+![index_notation_multiclass]
 ### Performance
 
 ### Comparison with simple Neural Network
