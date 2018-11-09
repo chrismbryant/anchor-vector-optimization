@@ -95,8 +95,9 @@ With this theory in place, we can now implement the model and cost function rela
 
 The simplest choice would be to guess that there is
 
-![binary-p01-q0-heatmap]
-![binary-p01-q0-cost]
+| Learned Color Map| Training and Testing Error Over Time|
+|:---:|:---:|
+|![binary-p01-q0-heatmap]| ![binary-p01-q0-cost]|
 
 | Performance on Training Set| Performance on Test Set|
 |:---:|:---:|
@@ -104,8 +105,9 @@ The simplest choice would be to guess that there is
 
 #### 2 anchors
 
-![binary-p02-q0-heatmap]
-![binary-p02-q0-cost]
+| Learned Color Map| Training and Testing Error Over Time|
+|:---:|:---:|
+|![binary-p02-q0-heatmap]| ![binary-p02-q0-cost]|
 
 | Performance on Training Set| Performance on Test Set|
 |:---:|:---:|
@@ -114,7 +116,14 @@ The simplest choice would be to guess that there is
 <div style="text-align:center"><img src =images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif /></div>
 
 
+#### 10 anchors
 
+| Charge| Training Visualization|
+|:---:|:---:|
+|_q_ = 0|![binary-p10-q0-training]
+|_q_ = 0.001|![binary-p10-q0.001-training]|
+|_q_ = 0.01|![binary-p10-q0.01-training]|
+|_q_ = 0.1|![binary-p10-q0.1-training]|
 
 
 ---
@@ -210,3 +219,8 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [binary-p02-q0-ROC_test]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/ROC_test.png
 [binary-p02-q0-ROC_train]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/ROC_train.png
 [binary-p02-q0-training]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif
+
+[binary-p10-q0.1-training]:images/anchor_training/p=10,%20q=0.1,%20alpha=0.01/training_cropped.gif
+[binary-p10-q0.01-training]:images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/training_cropped.gif
+[binary-p10-q0.001-training]:images/anchor_training/p=10,%20q=0.001,%20alpha=0.01/training_cropped.gif
+[binary-p10-q0-training]:images/anchor_training/p=10,%20q=0,%20alpha=0.01/training_cropped.gif
