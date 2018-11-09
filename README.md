@@ -102,6 +102,16 @@ The simplest choice would be to guess that there is
 |:---:|:---:|
 | ![binary-p01-q0-ROC_train]|![binary-p01-q0-ROC_test]|
 
+#### 2 anchors
+
+![binary-p02-q0-heatmap]
+![binary-p02-q0-cost]
+
+| Performance on Training Set| Performance on Test Set|
+|:---:|:---:|
+| ![binary-p02-q0-ROC_train]|![binary-p02-q0-ROC_test]|
+
+<div style="text-align:center"><img src =images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif /></div>
 
 
 
@@ -194,3 +204,9 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [binary-p01-q0-cost]:images/anchor_training/p=01,%20q=0,%20alpha=0.01/cost.png
 [binary-p01-q0-ROC_test]:images/anchor_training/p=01,%20q=0,%20alpha=0.01/ROC_test.png
 [binary-p01-q0-ROC_train]:images/anchor_training/p=01,%20q=0,%20alpha=0.01/ROC_train.png
+
+[binary-p02-q0-heatmap]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/learned_heatmap.png
+[binary-p02-q0-cost]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/cost.png
+[binary-p02-q0-ROC_test]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/ROC_test.png
+[binary-p02-q0-ROC_train]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/ROC_train.png
+[binary-p02-q0-training]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif
