@@ -3,8 +3,8 @@
 ## Contents
 
 * [Introduction](#Introduction)
-* [Binary Classification](#Binary Classification)
-* [Multi-class Classification](#Multi-class Classification)
+* [Binary Classification](#binary-classification)
+* [Multi-class Classification](#multi-class-classification)
 
 
 
