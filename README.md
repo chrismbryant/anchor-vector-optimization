@@ -4,7 +4,10 @@
 
 * [Introduction](#Introduction)
 * [Binary Classification](#binary-classification)
-* [Multiclass Classification](#multiclass-classification:-mnist)
+  * [Distance Function](#distance-function)
+  * [Building a Predictive Model](#building-a-predictive-model)
+  * [Learning](#learning)
+* [Multiclass Classification](#multiclass-classification:-mnistgit )
 
 
 
@@ -85,19 +88,22 @@ What is really going on when the model learns its parameter values?
 
 When trained on labeled examples, the anchor vector binary classification model tries to find optimal positions for its vectors that best represent the distribution of positive labels, subject to the constraint that the anchors shouldn't be very close together. The logistic regression portion of the model tries to find the best scaling of the distance function outputs which separates the two classes into regions of high probability and low probability for positive and negative examples, respectively.
 
-Thinking back to the distance function contour plots shown [above](#Distance Function), we can imagine the training procedure as a two-step process. In one step, the _shape_ of every 2D contour line is determined by the XY positions of all the anchors. In the other step, the contour lines are shifted up or down the Z dimension _without changing their shape_ so that the redder/higher the contour's Z height, the higher the probability it represents, and the lower/bluer the height, the lower the probability. The center-most contour in the Z dimension is the typical probability = 0.5 decision boundary which separates the positive from the negative class.
+Thinking back to the distance function contour plots shown [above](#distance-function), we can imagine the training procedure as a two-step process. In one step, the _shape_ of every 2D contour line is determined by the XY positions of all the anchors. In the other step, the contour lines are shifted up or down the Z dimension _without changing their shape_ so that the redder/higher the contour's Z height, the higher the probability it represents, and the lower/bluer the height, the lower the probability it represents. The center-most contour in the Z dimension is the typical {probability = 0.5} decision boundary used to separate the positive from the negative class.
 
 In terms of the alien planet, our model searches for the location of home bases which best correspond with the observed scattering of friendly and hostile aliens across the planet, informed by the additional piece of intuition that two home bases are not likely to be very close together.
 
-With this theory in place, we can now implement the model and cost function relatively easily in Google's Python-based machine learning framework [TensorFlow](https://www.tensorflow.org/), and see what happens when we choose various hyperparameters (such as the number of anchors or the charge of each anchor).
+With this theory in place, we can now implement the model and cost function relatively easily in Google's Python-based machine learning framework [TensorFlow](https://www.tensorflow.org/), and see what happens when we choose various hyperparameters (such as the number of anchors or the charge of each anchor). When we set up our model as a computation graph in TensorFlow, the partial derivatives of the cost function with respect to every parameter are automatically computed through [backpropagation](https://en.wikipedia.org/wiki/Backpropagation). This simplifies the model training process for us, since with a cost function and parameter partial derivatives we can use any pre-written optimization function (I've chosen the [Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/train/AdamOptimizer)) to search for the optimal parameters. [**Note:** In general, this optimization procedure is non-convex, so training may get stuck in local optima in our parameter space. In the current study, I have decided not to do a thorough complexity analysis since I do not want to compute the derivatives by hand right now.]  
 
 #### 1 anchor
 
-The simplest choice would be to guess that there is
+The simplest choice would be to guess that there is just a single home base. To train a single-anchor model, we initialize the anchor at a random position on the globe, and give the sigmoid weights random values. With each training iteration, the model moves the anchor to better fit the data distribution. Below, I've plotted a heat map of the final prediction distribution, where the yellow "X" marks the anchor position and the redder the heat map color, the safer the region. I have also plotted the error of the training and testing set over the course of the 5000-epoch model training period.
+
 
 | Learned Color Map| Training and Testing Error Over Time|
 |:---:|:---:|
 |![binary-p01-q0-heatmap]| ![binary-p01-q0-cost]|
+
+Since this is a binary classification
 
 | Performance on Training Set| Performance on Test Set|
 |:---:|:---:|
@@ -113,19 +119,26 @@ The simplest choice would be to guess that there is
 |:---:|:---:|
 | ![binary-p02-q0-ROC_train]|![binary-p02-q0-ROC_test]|
 
+<center>
+![binary-p02-q0-training]
+</center>
+
 <div style="text-align:center"><img src =images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif /></div>
 
 
 #### 10 anchors
 
-| Charge| Training Visualization|
-|:---:|:---:|
-|_q_ = 0|![binary-p10-q0-training]
-|_q_ = 0.001|![binary-p10-q0.001-training]|
-|_q_ = 0.01|![binary-p10-q0.01-training]|
-|_q_ = 0.1|![binary-p10-q0.1-training]|
+<center>
 
+| Charge | Training Visualization | Training and Testing Error Over Time |
+|:---:|:---:|:---:|
+|_q_ = 0|![binary-p10-q0-training]|<img src="images/anchor_training/p=10,%20q=0,%20alpha=0.01/cost.png" width="350"/>|
+|_q_ = 0.001|![binary-p10-q0.001-training]|<img src="images/anchor_training/p=10,%20q=0.001,%20alpha=0.01/cost.png" width="350"/>|
+|_q_ = 0.01|![binary-p10-q0.01-training]|<img src="images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/cost.png" width="350"/>|
+|_q_ = 0.1|![binary-p10-q0.1-training]|<img src="images/anchor_training/p=10,%20q=0.1,%20alpha=0.01/cost.png" width="350"/>|
 
+</center>
+---
 ---
 
 Suppose we have a multi-class dataset
@@ -224,3 +237,8 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [binary-p10-q0.01-training]:images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/training_cropped.gif
 [binary-p10-q0.001-training]:images/anchor_training/p=10,%20q=0.001,%20alpha=0.01/training_cropped.gif
 [binary-p10-q0-training]:images/anchor_training/p=10,%20q=0,%20alpha=0.01/training_cropped.gif
+
+[binary-p10-q0.1-cost]:images/anchor_training/p=10,%20q=0.1,%20alpha=0.01/cost.png
+[binary-p10-q0.01-cost]:images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/cost.png
+[binary-p10-q0.001-cost]:images/anchor_training/p=10,%20q=0.001,%20alpha=0.01/cost.png
+[binary-p10-q0-cost]:images/anchor_training/p=10,%20q=0,%20alpha=0.01/cost.png
