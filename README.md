@@ -40,6 +40,8 @@ This map-shading task can be framed as a probabilistic binary classification pro
 
 Unfortunately, the explorers' expedition was limited, so we don't know for sure how many central bases there are or exactly where on the planet they are positioned. In the absence of such detailed information, we can start our mathematical inquiry by guessing that the friendly civilization has just fixed number (e.g. 4) of central bases. The question now becomes: how can we best estimate the location of each of those central bases?
 
+[Back to top](#Contents)
+
 ### Distance Function
 
 From here on, I will assume that the reader has a basic knowledge of linear algebra and some multivariable calculus. Since all our pieces of data correspond to locations on the surface of the alien planet, the data can be represented as a collection of vectors pointing from the origin to the surface of a sphere centered on that origin. Choosing the location of a central base location is equivalent to choosing a vector pointing from the origin in some new direction. We'll call this an **_anchor vector_**.
@@ -60,6 +62,8 @@ For reference, below are visualizations of two alternate distance functions: the
 
 Now that we have a distance function, generating a "probability" function is straightforward. If we treat the distance measure as some kind of [log-odds](https://en.wikipedia.org/wiki/Logit) quantity, or at least a linear transformation of log-odds, we can convert it into a probability by applying the sigmoid function. The [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) squishes the real number line into the space between 0 and 1, so it will ensure that our output behaves like a probability (which must be non-negative and no greater than 1). Readers familiar with [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) will recognize this move of treating our data as log-odds, since that is exactly the tactic logistic regression uses to apply the method of [linear regression](https://en.wikipedia.org/wiki/Linear_regression) to the problem of binary classification.
 
+[Back to top](#Contents)
+
 ### Building a Predictive Model
 
 With the distance function in place, we can now write out an expression to represent the probability ("_y-hat_") of being safe in a certain location on the planet, given a collection of P home bases:
@@ -76,11 +80,13 @@ In the set of equations above, I've represented the total model cost _J_ as a su
 
 Typically, when the number of model parameters becomes large, we like to introduce [_regularization_](https://en.wikipedia.org/wiki/Regularization_(mathematics)) to prevent [overfitting](https://en.wikipedia.org/wiki/Overfitting). This regularization is coupled with "hyperparameters", whose values must be chosen to determine how much the regularization conditions should dominate the overall cost function. For logistic regression, we can introduce "L2 regularization" to penalize _w_ when it becomes large. However, since we just have a single _w_ parameter, such penalization is unnecessary, so I will set the regularization strength _λ_ to 0.
 
-The second term in _J<sub>reg</sub>_ is unique to this problem of anchor vectors, and its purpose is not exactly to reduce overfitting. Inspired by physics, this condition penalizes anchor vectors from being close to each other in the same way that equal electric charges are discouraged from being near each other. The electrostatic energy of two charges, each with charge _q_, is proportional to the product of their charges and inversely proportional to the distance between them. When a system of charged particles moves, it seeks to find the configuration of particles which minimizes the system's energy. Here, we include a "charge regularization" to push anchor vectors apart so that they try not to learn the same thing. The main difference between the physics formula and this regularization condition is that I use cosine similarity, here, to represent the distance between anchors rather than Euclidean distance.
+The second term in _J<sub>reg</sub>_ is unique to this problem of anchor vectors, and its purpose is not exactly to reduce overfitting. Inspired by physics, this condition penalizes anchor vectors from being close to each other in the same way that equal electric charges are discouraged from being near each other. The electrostatic energy of two charges, each with charge _q_, is proportional to the product of their charges and inversely proportional to the distance between them. When a system of charged particles moves, it seeks to find the configuration of particles which minimizes the system's energy. Here, we include a **"charge regularization"** to push anchor vectors apart so that they try not to learn the same thing. The main difference between the physics formula and this regularization condition is that I use cosine similarity, here, to represent the distance between anchors rather than Euclidean distance.
 
 To understand the notation I used in the above formulas, it may be useful to see a visual representation of each of the vectorized objects referenced. Below, I've illustrated the objects **X**, **A**, and **y** as blocks of values. **X** is a _m_-by-_n_ matrix of data points with one example vector in each row (_m_ examples with _n_ features per example). The vector **y** is a collection of _m_ example labels which correspond to each of the _m_ example feature vectors. **A** is a _P_-by-_n_ matrix of anchor vectors, where each row is one anchor vector with _n_ features.    
 
 ![blocks_binary]
+
+[Back to top](#Contents)
 
 ### Learning
 
@@ -92,7 +98,7 @@ Thinking back to the distance function contour plots shown [above](#distance-fun
 
 In terms of the alien planet, our model searches for the location of home bases which best correspond with the observed scattering of friendly and hostile aliens across the planet, informed by the additional piece of intuition that two home bases are not likely to be very close together.
 
-With this theory in place, we can now implement the model and cost function relatively easily in Google's Python-based machine learning framework [TensorFlow](https://www.tensorflow.org/), and see what happens when we choose various hyperparameters (such as the number of anchors or the charge of each anchor). When we set up our model as a computation graph in TensorFlow, the partial derivatives of the cost function with respect to every parameter are automatically computed through [backpropagation](https://en.wikipedia.org/wiki/Backpropagation). This simplifies the model training process for us, since with a cost function and parameter partial derivatives we can use any pre-written optimization function (I've chosen the [Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/train/AdamOptimizer)) to search for the optimal parameters. [**Note:** In general, this optimization procedure is non-convex, so training may get stuck in local optima in our parameter space. In the current study, I have decided not to do a thorough complexity analysis since I do not want to compute the derivatives by hand right now.]  
+With this theory in place, we can now implement the model and cost function relatively easily in Google's Python-based machine learning framework [TensorFlow](https://www.tensorflow.org/), and see what happens when we choose various hyperparameters (such as the number of anchors or the charge of each anchor). When we set up our model as a computation graph in TensorFlow, the partial derivatives of the cost function with respect to every parameter are automatically computed through [backpropagation](https://en.wikipedia.org/wiki/Backpropagation). This simplifies the model training process for us, since with a cost function and parameter partial derivatives we can use any pre-written optimization function (I've chosen the [Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/train/AdamOptimizer)) to search for the optimal parameters. In my analysis, I've performed an 80%/20% train/test split. [**Note:** In general, this optimization procedure is non-convex, so training may get stuck in local optima in our parameter space. In the current study, I have decided not to do a thorough complexity analysis since I do not want to compute the derivatives by hand right now.]  
 
 #### 1 anchor
 
@@ -103,7 +109,7 @@ The simplest choice would be to guess that there is just a single home base. To 
 |:---:|:---:|
 |![binary-p01-q0-heatmap]| ![binary-p01-q0-cost]|
 
-Since this is a binary classification
+Since this is a binary classification problem, we can use [ROC curves](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) to measure the performance of the model. These plots show how the true positive rate (true positive / all positive) and false positive rate (false positive / all negative) change as we shift the probability threshold for determining what is and is not considered a "positive prediction". A completely non-discriminative model would like on the diagonal line connecting TPR = FPR = 0 to TPR = FPR = 1. A perfectly discriminative model woudl pull the ROC curve all the way up to the TPR = 1, FPR = 0 point. From the ROC curves below, plotted for both the training set and the test set, we can see that a single-anchor model isn't terrible, but it could be better.
 
 | Performance on Training Set| Performance on Test Set|
 |:---:|:---:|
@@ -111,13 +117,19 @@ Since this is a binary classification
 
 #### 2 anchors
 
+To improve the classification performance, we can try again with two anchors instead of just one. For now, let's ignore anchor "charge" and just consider the anchors as non-interacting. Immediately, with just one more anchor, we can see dramatic improvement in classification accuracy. There is a clear visible separation between the green and orange dots as traced out by the white 50% probability threshold decision boundary.
+
 | Learned Color Map| Training and Testing Error Over Time|
 |:---:|:---:|
 |![binary-p02-q0-heatmap]| ![binary-p02-q0-cost]|
 
+When we plot ROC curves, we can confirm that the classification performance has dramatically improved from the single anchor case:
+
 | Performance on Training Set| Performance on Test Set|
 |:---:|:---:|
 | ![binary-p02-q0-ROC_train]|![binary-p02-q0-ROC_test]|
+
+We can peer into the black box of our model training procedure by rendering a heat map for the parameter states at intermediate points throughout the training. For this two-anchor case, it looks like the anchors first converged quickly from their random initializations to the same position around epoch 10. After jittering around together for some time, the two anchors separated around epoch 80, heading toward their final resting locations, which they settled on around epoch 400:
 
 <center>
 
@@ -125,8 +137,48 @@ Since this is a binary classification
 
 </center>
 
+#### 3 and 4 anchors
+
+With 3 anchors, we again see improved performance:
+
+| Learned Color Map| Training and Testing Error Over Time|
+|:---:|:---:|
+|![binary-p03-q0-heatmap]| ![binary-p03-q0-cost]|
+
+| Performance on Training Set| Performance on Test Set|
+|:---:|:---:|
+| ![binary-p03-q0-ROC_train]|![binary-p03-q0-ROC_test]|
+
+The 4-anchor model approaches limit at which this procedure can perform before we start seeing problems related to overfitting. To combat some crowding issues, I introduced a small amount of charge to these anchors:
+
+| Learned Color Map| Training and Testing Error Over Time|
+|:---:|:---:|
+|![binary-p04-q0.001-heatmap]| ![binary-p04-q0.001-cost]|
+
+| Performance on Training Set| Performance on Test Set|
+|:---:|:---:|
+| ![binary-p04-q0.001-ROC_train]|![binary-p04-q0.001-ROC_test]|
+
+By watching the parameters change during training, we can see how the uncharged 3-anchor case differs from the charged 4-anchor case. Notice that, like in the 2-anchor case, the 3 anchors begin by quickly moving from their random initializations to the same location, then separate again to find their final resting locations. In the 4-anchor case, on the other hand, we see the anchors approach the same location, but never quite touch because of their mutual repulsion. As they get pushed back apart again, we see how this repulsion informs their movement until they reach an equilibrium:
+
+<center>
+
+| 3 anchors (_q_ = 0) | 4 anchors (_q_ = 0.001)|
+|:---:|:---:|
+|![binary-p03-q0-training]| ![binary-p04-q0.001-training]|
+
+</center>
+---
 
 #### 10 anchors
+
+To better investigate the effect of anchor charge on the learning process, let us know examine the extreme case of 10 anchors. Since the data distribution has only 3 or 4 visible green clusters, 10 anchors is obviously too many. Rather than overfitting to the training set, however, this excessive number just appears to weaken the overall model performance.
+
+With no charge, the anchors have no option other than to merge and try their best to represent the data as one heavy anchor. Adding a small amount of charge (_q_ = 0.001) results in similar behavior, just with the anchors resting a small distance apart.
+
+Setting _q_ = 0.01 yields an interesting change in behavior of the system. Unlike in all previous cases, when the anchor charge exceeds a certain value, the model learns to have the anchors represent the _negative_ class instead of the positive class. Initially, the anchors learn to spread out as far as possible across the globe, but when transitioning from epoch 7 to epoch 8, the anchors flip sign to reduce the training cost in a manner almost akin to a phase transition. The anchors remain mostly evenly distributed in this local minimum until they learn that they can minimize the error better by clustering together toward the bottom of the globe around epoch 80. For the next few thousand epochs, 9 of the anchors wander slowly around the south pole while one straggler ventures upward to capture a particularly dense region of orange points. At epoch 3,740, the anchor configuration snaps into its final configuration.
+
+The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but because the charge is now so large, the anchors have a harder time pushing out of the state that has them evenly distributed across the globe. For the first 3,000 epochs, we see the anchors fidget collectively between a few equivalent configurations. For the next roughly 1,000 epochs, the anchors remain steady as the sigmoid parameters shift the probability distribution making the landscape bluer and bluer until the anchors finally snap to their final steady configuration.  
 
 <center>
 
@@ -139,12 +191,18 @@ Since this is a binary classification
 
 </center>
 ---
+
+[Back to top](#Contents)
+
 ---
+
+## Multi-class Classification: MNIST
+
+Now that we've tried out the learning procedure on an easily-visualizable toy binary model, we are ready to generalize anchor-vector learning to the _multiclass classification_ problem. To examine this concretely, we will consider the classic problem of handwritten digit recognition using the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Here we tackle directly the question I referenced in the introduction to this investigation: can we create a machine learning model which reflects our intuitive understanding of learning concepts through the refinement of archetypal ideals?
 
 Suppose we have a multi-class dataset
 * pixel brightness
 
-[Cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) is commonly used as a measure of similarity between two
 
 Consider the standard problem of handwritten digit recognition.
 * 28x28 square of grayscale pixels
@@ -152,20 +210,6 @@ Consider the standard problem of handwritten digit recognition.
 
 ???
 
-
-
-
-
-
-### "Charge" property
-
-### Negative anchors
-
-The work we have discussed so far applies well when our data lives in a [simply connected space](https://en.wikipedia.org/wiki/Simply_connected_space) or a union of several such spaces; in other words, blobs of data are good, but holes in those blobs cause problems. Because our distance function increases as we move away from any particular anchor, the only way to
-
----
-
-## Multi-class Classification: MNIST
 
 ### Distance Function
 
@@ -186,6 +230,8 @@ The work we have discussed so far applies well when our data lives in a [simply 
 Hierarchical classification with multi-label classification. Change the softmax output into a collection of sigmoids with corresponding cross entropy losses.
 
 Specify different number of anchors per class.
+
+Negative anchors: The work we have discussed so far applies well when our data lives in a [simply connected space](https://en.wikipedia.org/wiki/Simply_connected_space) or a union of several such spaces; in other words, blobs of data are good, but holes in those blobs cause problems. Because our distance function increases as we move away from any particular anchor, the only way to
 
 Grant a trainable weight to each anchor (to make some more important than others), and take a weighted geometric mean of cosine distances rather than a basic product of distances.
 
@@ -232,6 +278,18 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [binary-p02-q0-ROC_test]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/ROC_test.png
 [binary-p02-q0-ROC_train]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/ROC_train.png
 [binary-p02-q0-training]:images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif
+
+[binary-p03-q0-heatmap]:images/anchor_training/p=03,%20q=0,%20alpha=0.01/learned_heatmap.png
+[binary-p03-q0-cost]:images/anchor_training/p=03,%20q=0,%20alpha=0.01/cost.png
+[binary-p03-q0-ROC_test]:images/anchor_training/p=03,%20q=0,%20alpha=0.01/ROC_test.png
+[binary-p03-q0-ROC_train]:images/anchor_training/p=03,%20q=0,%20alpha=0.01/ROC_train.png
+[binary-p03-q0-training]:images/anchor_training/p=03,%20q=0,%20alpha=0.01/training_cropped.gif
+
+[binary-p04-q0.001-heatmap]:images/anchor_training/p=04,%20q=0.001,%20alpha=0.01/learned_heatmap.png
+[binary-p04-q0.001-cost]:images/anchor_training/p=04,%20q=0.001,%20alpha=0.01/cost.png
+[binary-p04-q0.001-ROC_test]:images/anchor_training/p=04,%20q=0.001,%20alpha=0.01/ROC_test.png
+[binary-p04-q0.001-ROC_train]:images/anchor_training/p=04,%20q=0.001,%20alpha=0.01/ROC_train.png
+[binary-p04-q0.001-training]:images/anchor_training/p=04,%20q=0.001,%20alpha=0.01/training_cropped.gif
 
 [binary-p10-q0.1-training]:images/anchor_training/p=10,%20q=0.1,%20alpha=0.01/training_cropped.gif
 [binary-p10-q0.01-training]:images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/training_cropped.gif
