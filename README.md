@@ -2,9 +2,9 @@
 
 ## Contents
 
-* Introduction
-* Binary classification
-* Multi-class classification
+* [Introduction](#Introduction)
+* [Binary Classification](#Binary Classification)
+* [Multi-class Classification](#Multi-class Classification)
 
 
 
@@ -23,7 +23,7 @@ In the following exploration, I will be developing an approach to machine learni
 
 ---
 
-## Binary classification
+## Binary Classification
 
 To begin translating our discussion of archetypes into a mathematical language compatible with machine learning, let us consider a toy problem of distinguishing two classes of points on a sphere. In fact, let us make this more concrete by imagining that we have discovered an alien planet inhabited by two major civilizations. After some exploration, we learn that members of only one of these civilizations is friendly, while members of the other will attack any human they encounter. The belligerent species has spread out over most of the planet, but the friendly one has clustered around a few central bases where it can maintain control of the local resources. If humans are to live safely on this alien planet, we need to have a way of staying close to the areas predominantly occupied by the friendly civilization.
 
@@ -152,7 +152,7 @@ The work we have discussed so far applies well when our data lives in a [simply 
 
 ---
 
-## Multi-class classification: MNIST
+## Multi-class Classification: MNIST
 
 ### Distance Function
 
