@@ -120,10 +120,10 @@ Since this is a binary classification
 | ![binary-p02-q0-ROC_train]|![binary-p02-q0-ROC_test]|
 
 <center>
-![binary-p02-q0-training]
-</center>
 
-<div style="text-align:center"><img src =images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif /></div>
+![binary-p02-q0-training]
+
+</center>
 
 
 #### 10 anchors
