@@ -7,7 +7,7 @@
   * [Distance Function](#distance-function)
   * [Building a Predictive Model](#building-a-predictive-model)
   * [Learning](#learning)
-* [Multiclass Classification](#multiclass-classification:-mnistgit )
+* [Multiclass Classification: MNIST](#multiclass-classification:-mnist)
 
 
 
@@ -131,11 +131,7 @@ When we plot ROC curves, we can confirm that the classification performance has 
 
 We can peer into the black box of our model training procedure by rendering a heat map for the parameter states at intermediate points throughout the training. For this two-anchor case, it looks like the anchors first converged quickly from their random initializations to the same position around epoch 10. After jittering around together for some time, the two anchors separated around epoch 80, heading toward their final resting locations, which they settled on around epoch 400:
 
-<center>
-
 ![binary-p02-q0-training]
-
-</center>
 
 #### 3 and 4 anchors
 
@@ -161,14 +157,9 @@ The 4-anchor model approaches limit at which this procedure can perform before w
 
 By watching the parameters change during training, we can see how the uncharged 3-anchor case differs from the charged 4-anchor case. Notice that, like in the 2-anchor case, the 3 anchors begin by quickly moving from their random initializations to the same location, then separate again to find their final resting locations. In the 4-anchor case, on the other hand, we see the anchors approach the same location, but never quite touch because of their mutual repulsion. As they get pushed back apart again, we see how this repulsion informs their movement until they reach an equilibrium:
 
-<center>
-
 | 3 anchors (_q_ = 0) | 4 anchors (_q_ = 0.001)|
 |:---:|:---:|
 |![binary-p03-q0-training]| ![binary-p04-q0.001-training]|
-
-</center>
----
 
 #### 10 anchors
 
@@ -180,8 +171,6 @@ Setting _q_ = 0.01 yields an interesting change in behavior of the system. Unlik
 
 The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but because the charge is now so large, the anchors have a harder time pushing out of the state that has them evenly distributed across the globe. For the first 3,000 epochs, we see the anchors fidget collectively between a few equivalent configurations. For the next roughly 1,000 epochs, the anchors remain steady as the sigmoid parameters shift the probability distribution making the landscape bluer and bluer until the anchors finally snap to their final steady configuration.  
 
-<center>
-
 | Charge | Training Visualization | Training and Testing Error Over Time |
 |:---:|:---:|:---:|
 |_q_ = 0|![binary-p10-q0-training]|<img src="images/anchor_training/p=10,%20q=0,%20alpha=0.01/cost.png" width="350"/>|
@@ -189,14 +178,11 @@ The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but becau
 |_q_ = 0.01|![binary-p10-q0.01-training]|<img src="images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/cost.png" width="350"/>|
 |_q_ = 0.1|![binary-p10-q0.1-training]|<img src="images/anchor_training/p=10,%20q=0.1,%20alpha=0.01/cost.png" width="350"/>|
 
-</center>
----
-
 [Back to top](#Contents)
 
 ---
 
-## Multi-class Classification: MNIST
+## Multiclass Classification: MNIST
 
 Now that we've tried out the learning procedure on an easily-visualizable toy binary model, we are ready to generalize anchor-vector learning to the _multiclass classification_ problem. To examine this concretely, we will consider the classic problem of handwritten digit recognition using the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Here we tackle directly the question I referenced in the introduction to this investigation: can we create a machine learning model which reflects our intuitive understanding of learning concepts through the refinement of archetypal ideals?
 
