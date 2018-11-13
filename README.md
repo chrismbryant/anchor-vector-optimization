@@ -4,7 +4,7 @@
 
 * [Introduction](#Introduction)
 * [Binary Classification](#binary-classification)
-* [Multi-class Classification](#multi-class-classification)
+* [Multiclass Classification](#multiclass-classification:-mnist)
 
 
 
