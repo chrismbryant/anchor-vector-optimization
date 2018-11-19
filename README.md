@@ -1,7 +1,8 @@
-
 ![cover]
+
 ---
 # Anchor vector optimization
+_Christopher Bryant_ | 2018-11-18
 
 ## Contents
 
