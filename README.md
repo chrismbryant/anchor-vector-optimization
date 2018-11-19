@@ -1,5 +1,7 @@
 # Anchor vector optimization
 
+![multi-p10-q0-a0.1-randF-anchors]
+---
 ## Contents
 
 * [Introduction](#Introduction)
@@ -7,12 +9,10 @@
   * [Distance Function](#distance-function)
   * [Building a Predictive Model](#building-a-predictive-model)
   * [Learning](#learning)
-* [Multiclass Classification: MNIST](#multiclass-classification%3A-mnist)
-  * [Distance Function, revisited](#distance-function%2C-revisited)
+* [Multiclass Classification: MNIST](#multiclass-classification)
+  * [Distance Function - revisited](#distance-function---revisited)
   * [Generalizing our Predictive Model](#generalizing-our-predictive-model)
   * [Learning to Classify Handwritten Digits](#learning-to-classify-handwritten-digits)
-
-
 
 ---
 ## Introduction
@@ -134,7 +134,7 @@ When we plot ROC curves, we can confirm that the classification performance has 
 
 We can peer into the black box of our model training procedure by rendering a heat map for the parameter states at intermediate points throughout the training. For this two-anchor case, it looks like the anchors first converged quickly from their random initializations to the same position around epoch 10. After jittering around together for some time, the two anchors separated around epoch 80, heading toward their final resting locations, which they settled on around epoch 400:
 
-![binary-p02-q0-training]
+<center>![binary-p02-q0-training]</center>
 
 #### 3 and 4 anchors
 
@@ -185,13 +185,13 @@ The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but becau
 
 ---
 
-## Multiclass Classification: MNIST
+## Multiclass Classification
 
 Now that we've tried out the learning procedure on an easily-visualizable toy binary model, we are ready to generalize anchor-vector learning to the _multiclass classification_ problem. To examine this concretely, we will consider the classic problem of handwritten digit recognition using the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Here we tackle directly the question I referenced in the introduction to this investigation: can we create a machine learning model which reflects our intuitive understanding of the process of learning concepts through the refinement of archetypal ideals?
 
 [Back to top](#Contents)
 
-### Distance Function, revisited
+### Distance Function - revisited
 
 We can make use of the same "distance product" function we developed for the binary classification case if we represent each handwritten digit as an embedding in some vector space. One simple way to do this is to unroll each 28x28-pixel grayscale image into a 784-dimensional vector. In this representation, each dimension in the vector space corresponds to the pixel at one position in the image, and the value of the image's vector in that dimension is the brightness of that pixel, scaled between 0 and 1. We can measure the similarity between a pair of images by taking the cosine of the angle between their vector representations.
 
@@ -340,7 +340,7 @@ On the other hand, when just a small amount of charge was added (_q_ = 0.001), t
 
 Lastly, if we try increasing the anchor charge further by a factor of 100 so that _q_ = 0.1, we see the following:
 
-![multi-p20-q0.1-a0.1-randF-paramgif]
+<center>![multi-p20-q0.1-a0.1-randF-paramgif]</center>
 
 The highly charged anchors above evolve naturally for some time before a single anchor apparently saturates. This the resulting coloration of the visualization darkens significantly probably because I have scaled the brightness values of each epoch frame such that the minimum value pixel is the darkest blue and the maximum value pixel is the brightest yellow. In other words, though the training images look strange, most of the anchors are probably evolving normally. In the end, this model yields a testing accuracy of 95.8% and a training accuracy of 97.2%, essentially identical to the _q_ = 0.001 case. It appears that in the high-dimensional space of MNIST, anchors just need a small amount of charge to avoid degeneracy problems, and are mostly insensitive to increases in charge magnitude because crowding is not a problem when there are a large number of dimensions to inhabit.
 
@@ -458,6 +458,8 @@ If you made it this far, congrats! Thanks for taking the time to read this. If y
 
 
 [multi-p10-q0-a0.1-randF-fixA-anchors]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False,%20learn_A=False/learned_anchors.png
+
+[multi-p10-q0-a0.1-randF-anchors]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False/learned_anchors.png
 
 [multi-p10-q0-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
 [multi-p10-q0-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
