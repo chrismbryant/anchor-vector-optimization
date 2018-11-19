@@ -15,6 +15,7 @@ _Christopher Bryant_ | 2018-11-18
   * [Distance Function - revisited](#distance-function---revisited)
   * [Generalizing our Predictive Model](#generalizing-our-predictive-model)
   * [Learning to Classify Handwritten Digits](#learning-to-classify-handwritten-digits)
+* [Conclusion](#conclusion)
 
 ---
 ## Introduction
