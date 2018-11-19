@@ -6,7 +6,7 @@ _Christopher Bryant_ | 2018-11-18
 
 ## Contents
 
-* [Introduction](#Introduction)
+* [Introduction](#introduction)
 * [Binary Classification](#binary-classification)
   * [Distance Function](#distance-function)
   * [Building a Predictive Model](#building-a-predictive-model)
@@ -28,7 +28,7 @@ Sometimes, your experience necessitates that you expand your collection of arche
 
 In the following exploration, I will be developing an approach to machine learning that takes literally this idea of learning via repeated archetype comparison. We will begin with the simplified case of binary classification, i.e. distinguishing what something _is_ from what it _is not_. After that, we will generalize our analysis to multi-class classification, using the identification of hand-written digits as a case study.  
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ---
 
@@ -46,7 +46,7 @@ This map-shading task can be framed as a probabilistic binary classification pro
 
 Unfortunately, the explorers' expedition was limited, so we don't know for sure how many central bases there are or exactly where on the planet they are positioned. In the absence of such detailed information, we can start our mathematical inquiry by guessing that the friendly civilization has just a fixed number (e.g. 4) of central bases. The question now becomes: how can we best estimate the location of each of those central bases?
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ### Distance Function
 
@@ -68,7 +68,7 @@ For reference, below are visualizations of two alternate distance functions: the
 
 Now that we have a distance function, generating a "probability" function is straightforward. If we treat the distance measure as some kind of [log-odds](https://en.wikipedia.org/wiki/Logit) quantity, or at least a linear transformation of log-odds, we can convert it into a probability by applying the sigmoid function. The [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) squishes the real number line into the space between 0 and 1, so it will ensure that our output behaves like a probability (which must be non-negative and no greater than 1). Readers familiar with [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) will recognize this move of treating our data as log-odds, since that is exactly the tactic logistic regression uses to apply the method of [linear regression](https://en.wikipedia.org/wiki/Linear_regression) to the problem of binary classification.
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ### Building a Predictive Model
 
@@ -92,7 +92,7 @@ To understand the notation I used in the above formulas, it may be useful to see
 
 ![blocks_binary]
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ### Learning
 
@@ -184,7 +184,7 @@ The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but becau
 |_q_ = 0.01|![binary-p10-q0.01-training]|<img src="images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/cost.png" width="350"/>|
 |_q_ = 0.1|![binary-p10-q0.1-training]|<img src="images/anchor_training/p=10,%20q=0.1,%20alpha=0.01/cost.png" width="350"/>|
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ---
 
@@ -192,7 +192,7 @@ The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but becau
 
 Now that we've tried out the learning procedure on an easily-visualizable toy binary model, we are ready to generalize anchor-vector learning to the _multiclass classification_ problem. To examine this concretely, we will consider the classic problem of handwritten digit recognition using the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Here we tackle directly the question I referenced in the introduction to this investigation: can we create a machine learning model which reflects our intuitive understanding of the process of learning concepts through the refinement of archetypal ideals?
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ### Distance Function - revisited
 
@@ -202,7 +202,7 @@ Like before, to create a measure of distance between a single image and a set of
 
 The only difference between the distance function in the binary case and in the multiclass case is that for each sample in the multiclass case, we want to know how far away that sample is from _each_ class it could possibly belong to. Instead of computing one distance product, we compute _K_ distance products—one for each of the _K_ classes.  
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ### Generalizing our Predictive Model
 
@@ -230,7 +230,7 @@ Notice that while the input **X** is the same as in the binary case, with _m_ ex
 
 The anchor matrix **A** is now an array of depth _K_, where each of the _K_ sheets contains _P_ anchor vectors, each with _n_ components. The way I have notated it, each anchor vector **_a<sub>kp</sub>_** gets two indices, the first one indicating which class it belongs to, and the second one indicating which anchor vector in that class it is. When I refer to the brightness of a single pixel of one of these anchor vectors, I use the full 3-index array notation: _A<sub>kpj</sub>_ is the brightness of the _j_-th pixel of the _p_-th anchor of the _k_-th class. The symbol **A** refers to the whole collection of anchor vector pixel values.
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ### Learning to Classify Handwritten Digits
 
@@ -347,7 +347,7 @@ Lastly, if we try increasing the anchor charge further by a factor of 100 so tha
 
 The highly charged anchors above evolve naturally for some time before a single anchor apparently saturates. This the resulting coloration of the visualization darkens significantly probably because I have scaled the brightness values of each epoch frame such that the minimum value pixel is the darkest blue and the maximum value pixel is the brightest yellow. In other words, though the training images look strange, most of the anchors are probably evolving normally. In the end, this model yields a testing accuracy of 95.8% and a training accuracy of 97.2%, essentially identical to the _q_ = 0.001 case. It appears that in the high-dimensional space of MNIST, anchors just need a small amount of charge to avoid degeneracy problems, and are mostly insensitive to increases in charge magnitude because crowding is not a problem when there are a large number of dimensions to inhabit.
 
-[Back to top](#Contents)
+[Back to top](#contents)
 
 ---
 
@@ -372,7 +372,7 @@ Below are just a few ideas for future exploration:
 
 If you made it this far, congrats! Thanks for taking the time to read this. If you have any comments, questions, or suggestions, please feel free to contact me.
 
-[Back to top](#Contents)
+[Back to top](#contents)
 ---
 
 [cover]:images/anchor_training_multiclass/cover.png
