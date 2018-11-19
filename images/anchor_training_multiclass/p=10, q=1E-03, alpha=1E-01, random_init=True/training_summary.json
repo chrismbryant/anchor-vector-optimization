@@ -1,0 +1,1 @@
+{"alpha": 0.1, "initialize_A_with_samples": false, "train_accuracy": 0.96795, "k": 10, "training_time (s)": 1627.6814756393433, "learn_A": true, "p": 10, "num_epochs": 100, "q": 0.001, "test_accuracy": 0.9564}
