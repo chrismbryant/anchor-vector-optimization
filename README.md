@@ -137,7 +137,7 @@ When we plot ROC curves, we can confirm that the classification performance has 
 
 We can peer into the black box of our model training procedure by rendering a heat map for the parameter states at intermediate points throughout the training. For this two-anchor case, it looks like the anchors first converged quickly from their random initializations to the same position around epoch 10. After jittering around together for some time, the two anchors separated around epoch 80, heading toward their final resting locations, which they settled on around epoch 400:
 
-<center>![binary-p02-q0-training]</center>
+<img align="center" src="images/anchor_training/p=02,%20q=0,%20alpha=0.01/training_cropped.gif">
 
 #### 3 and 4 anchors
 
@@ -343,7 +343,7 @@ On the other hand, when just a small amount of charge was added (_q_ = 0.001), t
 
 Lastly, if we try increasing the anchor charge further by a factor of 100 so that _q_ = 0.1, we see the following:
 
-<center>![multi-p20-q0.1-a0.1-randF-paramgif]</center>
+<img align="center" src="images/anchor_training_multiclass/p=20,%20q=1E-01,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif">
 
 The highly charged anchors above evolve naturally for some time before a single anchor apparently saturates. This the resulting coloration of the visualization darkens significantly probably because I have scaled the brightness values of each epoch frame such that the minimum value pixel is the darkest blue and the maximum value pixel is the brightest yellow. In other words, though the training images look strange, most of the anchors are probably evolving normally. In the end, this model yields a testing accuracy of 95.8% and a training accuracy of 97.2%, essentially identical to the _q_ = 0.001 case. It appears that in the high-dimensional space of MNIST, anchors just need a small amount of charge to avoid degeneracy problems, and are mostly insensitive to increases in charge magnitude because crowding is not a problem when there are a large number of dimensions to inhabit.
 
