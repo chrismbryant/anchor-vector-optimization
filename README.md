@@ -1,7 +1,8 @@
+
+![cover]
+---
 # Anchor vector optimization
 
-![multi-p10-q0-a0.1-randF-anchors]
----
 ## Contents
 
 * [Introduction](#Introduction)
@@ -372,7 +373,7 @@ If you made it this far, congrats! Thanks for taking the time to read this. If y
 [Back to top](#Contents)
 ---
 
-
+[cover]:images/anchor_training_multiclass/cover.png
 
 [4s]:images/4s.png
 [multiplicative_demo]:images/distance_function_demo/multiplicative.png
