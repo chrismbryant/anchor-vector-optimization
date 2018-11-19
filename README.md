@@ -41,7 +41,7 @@ Thankfully, a team of explorers have surveyed the planet for us, marking green o
 
 This map-shading task can be framed as a probabilistic binary classification problem if we consider each spot on the globe as having some probability between 0 and 1 of being _safe_. There are plenty of algorithms that we could employ to tackle this problem (e.g. k-nearest-neighbors, support vector machines, neural networks, etc.), but let's see if we can approach the problem from a different perspective. We think that the friendly civilization has some central bases, so we might guess that those bases have the strongest defenses against the hostile civilization. As long as we are close to any one of these bases, we can reason, no matter which base we choose, we will be safe. The farther away we get from any base, the weaker the defenses become, and the greater danger we place ourselves in.
 
-Unfortunately, the explorers' expedition was limited, so we don't know for sure how many central bases there are or exactly where on the planet they are positioned. In the absence of such detailed information, we can start our mathematical inquiry by guessing that the friendly civilization has just fixed number (e.g. 4) of central bases. The question now becomes: how can we best estimate the location of each of those central bases?
+Unfortunately, the explorers' expedition was limited, so we don't know for sure how many central bases there are or exactly where on the planet they are positioned. In the absence of such detailed information, we can start our mathematical inquiry by guessing that the friendly civilization has just a fixed number (e.g. 4) of central bases. The question now becomes: how can we best estimate the location of each of those central bases?
 
 [Back to top](#Contents)
 
@@ -49,9 +49,9 @@ Unfortunately, the explorers' expedition was limited, so we don't know for sure 
 
 From here on, I will assume that the reader has a basic knowledge of linear algebra and some multivariable calculus. Since all our pieces of data correspond to locations on the surface of the alien planet, the data can be represented as a collection of vectors pointing from the origin to the surface of a sphere centered on that origin. Choosing the location of a central base location is equivalent to choosing a vector pointing from the origin in some new direction. We'll call this an **_anchor vector_**.
 
-The measure known as [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) provides us a good way of representing how far apart two locations on our planet are from each other. This similarity measure computes the cosine of the angle between the two vectors representing our locations, such that if the vectors exactly coincide, the cosine similarity equals 1, and if they point in opposite directions, the cosine similarity equals -1. To turn this into a distance measure, we can simply take 1 minus the cosine similarity so that the closest and farthest that two vectors can be from each other are a distance of 0 and 2, respectively. (**Note**: Cosine similarity is well-defined for vector pairs of any magnitude and in any number of dimensions, but since all our data lies on a sphere, there happens to be a one-to-one correspondence between cosine distance and [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance). Though this correspondence allows cosine distance to act as a true metric of our spherical space, in general, cosine distance cannot be considered a _true_ [distance metric](https://en.wikipedia.org/wiki/Metric_(mathematics) since it does not obey the triangle inequality. This is not important for the current discussion, but it's good to know.)
+The measure known as [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) provides us a good way of representing how far apart two locations on our planet are from each other. This similarity measure computes the cosine of the angle between the two vectors representing our locations, such that if the vectors exactly coincide, the cosine similarity equals 1, and if they point in opposite directions, the cosine similarity equals -1. To turn this into a distance measure, we can simply take 1 minus the cosine similarity so that the closest and farthest that two vectors can be from each other are a distance of 0 and 2, respectively. (**Note**: Cosine similarity is well-defined for vector pairs of any magnitude and in any number of dimensions, but since all our data lies on a sphere, there happens to be a one-to-one correspondence between cosine distance and [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance). Though this correspondence allows cosine distance to act as a true metric of our spherical space, in general, cosine distance cannot be considered a _true_ [distance metric](https://en.wikipedia.org/wiki/Metric_(mathematics%29) since it does not obey the triangle inequality. This is not important for the current discussion, but it's good to know.)
 
-Cosine distance can tell us how far away we are from any single base on the alien planet, but to understand how far we are from _safety_, we need to create a new notion of distance that somehow represents how far away we are from all of the bases together. Remember that if we treat each base equally, we just need to be near any one of the bases to be safe. One simple way to encode this idea is to represent our effective distance from safety as the _minimum distance_ between us and each of the bases. However, if two bases are near to each other, we might guess that being close to both of them is safer than being close to a single isolated base. To account for the contributions of all the bases, then, we can take the _product of distances_ between us and each base. Notice that since the cosine distance goes to 0 as two vectors approach each other, as long as we are near any base, the product of distances will also be lose to 0. Furthermore, if we're near multiple bases, the product of distances will be even smaller. Below I've plotted an example of the distance product function in action, along with a version with the contour lines pushed down away from the tips to emphasize visually what's going on.
+Cosine distance can tell us how far away we are from any single base on the alien planet, but to understand how far we are from _safety_, we need to create a new notion of distance that somehow represents how far away we are from all of the bases together. Remember that if we treat each base equally, we just need to be near any one of the bases to be safe. One simple way to encode this idea is to represent our effective distance from safety as the _minimum distance_ between us and each of the bases. However, if two bases are near to each other, we might guess that being close to both of them is safer than being close to a single isolated base. To account for the contributions of all the bases, then, we can take the _product of distances_ between us and each base. Notice that since the cosine distance goes to 0 as two vectors approach each other, as long as we are near any base, the product of distances will also be close to 0. Furthermore, if we're near multiple bases, the product of distances will be even smaller. Below I've plotted an example of the distance product function in action, along with a version with the contour lines pushed down away from the tips to emphasize visually what's going on.
 
 |Distance Product | Distance Product (Pointy)|
 |:---:|:---:|
@@ -69,7 +69,7 @@ Now that we have a distance function, generating a "probability" function is str
 
 ### Building a Predictive Model
 
-With the distance function in place, we can now write out an expression to represent the probability ("_y-hat_") of being safe in a certain location on the planet, given a collection of P home bases:
+With the distance function in place, we can now write out an expression to represent the probability ("_y-hat_") of being safe in a certain location on the planet, given a collection of _P_ home bases:
 
 ![y_hat_binary]
 
@@ -85,7 +85,7 @@ Typically, when the number of model parameters becomes large, we like to introdu
 
 The second term in _J<sub>reg</sub>_ is unique to this problem of anchor vectors, and its purpose is not exactly to reduce overfitting. Inspired by physics, this condition penalizes anchor vectors from being close to each other in the same way that equal electric charges are discouraged from being near each other. The electrostatic energy of two charges, each with charge _q_, is proportional to the product of their charges and inversely proportional to the distance between them. When a system of charged particles moves, it seeks to find the configuration of particles which minimizes the system's energy. Here, we include a **"charge regularization"** to push anchor vectors apart so that they try not to learn the same thing. The main difference between the physics formula and this regularization condition is that I use cosine similarity, here, to represent the distance between anchors rather than Euclidean distance.
 
-To understand the notation I used in the above formulas, it may be useful to see a visual representation of each of the vectorized objects referenced. Below, I've illustrated the objects **X**, **A**, and **y** as blocks of values. **X** is a _m_-by-_n_ matrix of data points with one example vector in each row (_m_ examples with _n_ features per example). The vector **y** is a collection of _m_ example labels which correspond to each of the _m_ example feature vectors. **A** is a _P_-by-_n_ matrix of anchor vectors, where each row is one anchor vector with _n_ features.    
+To understand the notation I used in the above formulas, it may be useful to see a visual representation of each of the vectorized objects referenced. Below, I've illustrated the objects **X**, **A**, and **y** as blocks of values. **X** is an _m_-by-_n_ matrix of data points with one example vector in each row (_m_ examples with _n_ features per example). The vector **y** is a collection of _m_ example labels which correspond to each of the _m_ example feature vectors. **A** is a _P_-by-_n_ matrix of anchor vectors, where each row is one anchor vector with _n_ features.    
 
 ![blocks_binary]
 
@@ -101,7 +101,7 @@ Thinking back to the distance function contour plots shown [above](#distance-fun
 
 In terms of the alien planet, our model searches for the location of home bases which best correspond with the observed scattering of friendly and hostile aliens across the planet, informed by the additional piece of intuition that two home bases are not likely to be very close together.
 
-With this theory in place, we can now implement the model and cost function relatively easily in Google's Python-based machine learning framework [TensorFlow](https://www.tensorflow.org/), and see what happens when we choose various hyperparameters (such as the number of anchors or the charge of each anchor). When we set up our model as a computation graph in TensorFlow, the partial derivatives of the cost function with respect to every parameter are automatically computed through [backpropagation](https://en.wikipedia.org/wiki/Backpropagation). This simplifies the model training process for us, since with a cost function and parameter partial derivatives we can use any pre-written optimization function (I've chosen the [Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/train/AdamOptimizer)) to search for the optimal parameters. In my analysis, I've performed an 80%/20% train/test split. [**Note:** In general, this optimization procedure is non-convex, so training may get stuck in local optima in our parameter space. In the current study, I have decided not to do a thorough complexity analysis since I do not want to compute the derivatives by hand right now.]  
+With this theory in place, we can now implement the model and cost function relatively easily in Google's Python-based machine learning framework [TensorFlow](https://www.tensorflow.org/), and see what happens when we choose various hyperparameters (such as the number of anchors or the charge of each anchor). When we set up our model as a computation graph in TensorFlow, the partial derivatives of the cost function with respect to every parameter are automatically computed through [backpropagation](https://en.wikipedia.org/wiki/Backpropagation). This simplifies the model training process for us, since with a cost function and parameter partial derivatives we can use any pre-written optimization function (I've chosen the [Adam optimizer](https://www.tensorflow.org/api_docs/python/tf/train/AdamOptimizer)) to search for the optimal parameters. In my analysis, I've performed an 80%/20% train/test split. [**Note:** In general, this optimization procedure is non-convex, so training may get stuck in local optima in our parameter space. In the current study, I have decided not to do a thorough convexity analysis since I do not want to compute the derivatives by hand right now.]  
 
 #### 1 anchor
 
@@ -231,6 +231,8 @@ The anchor matrix **A** is now an array of depth _K_, where each of the _K_ shee
 
 ### Learning to Classify Handwritten Digits
 
+Remember that our model computes a distance function to each set of anchor vectors. Whichever anchor set an example is _closest_ to is the assigned class of that example.
+
 #### 1 anchor per class
 
 To start off, we can give each class just one anchor vector to work with. Before we even allow the anchor vectors to move, it may be interesting to see what happens if we train only learn the softmax parameters **w** and **b** given a fixed set of anchors.
@@ -320,9 +322,7 @@ Though the visualizations look odd, adding charge actually slightly increased th
 |:---:|:---:|
 |![multi-p10-q0.001-a0.1-randF-paramgif]|![multi-p10-q0.001-a0.1-randT-paramgif]|
 
-For comparison, I've displayed above what happens when the anchor charge is 1/100 the size of the previous _q_ = 0.1 case.
-
-[ ????????????????? Notice ?????????????????????]
+For comparison, I've displayed above what happens when the anchor charge is 1/100 the size of the previous _q_ = 0.1 case. For sample-initialization, the test and train accuracy were 95.2% and 96.4%, respectively, and for random-initialization, the test and train accuracy were 95.6% and 96.8%, respectively. It is clear that since the performance is relatively unchanged from the _q_ = 0.1 case, only a small amount of charge needs to be added to gain the benefits of charge regularization.
 
 #### 20 anchors per class
 
@@ -331,41 +331,51 @@ At 20 anchors per class, we now have double the number of anchors representing e
 | _q_ = 0 | q = 0.001|
 |:---:|:---:|
 |![multi-p20-q0-a0.1-randF-paramgif]|![multi-p20-q0.001-a0.1-randF-paramgif]|
+|![multi-p20-q0-a0.1-randF-cost]|![multi-p20-q0.001-a0.1-randF-cost]|
+|![multi-p20-q0-a0.1-randF-umapgif]|![multi-p20-q0.001-a0.1-randF-umapgif]|
 
-q = 0: test - 85.7%, train - 86.9%
-q = 0.001 test - 95.7%, train - 97.3%
+The model with _q_ = 0 has a few major bumps in its cost minimization procedure. At the start, digits 2 through 5 all have low contrast anchors, but within the first 20 epochs, digits 3, 5 and 2 appear in sequence. Each time a new digit appears with higher contrast, the training cost visibly drops. This is analogous to what we saw in the binary classification case earlier, where at the beginning of training, the anchors would stick together in a degenerate local minimum and only separate after some time to find a lower minimum. In this case, however, the 4 anchors never found their way out of the low-contrast degenerate state, so the model's test accuracy was only 85.7% (and 86.9% train accuracy).
+
+On the other hand, when just a small amount of charge was added (_q_ = 0.001), the training didn't suffer the same degeneracy problems. The 5 digit anchors had a low contrast phase at the very beginning, but were quickly pushed apart into more optimal non-degenerate states. As a result, the test accuracy was 95.7% (97.3% training accuracy). At this point, even though we can recover the same test performance we had with earlier models, with this number of anchors we are only increasing the degree to which we overfit the training set.
+
+Lastly, if we try increasing the anchor charge further by a factor of 100 so that _q_ = 0.1, we see the following:
+
+![multi-p20-q0.1-a0.1-randF-paramgif]
+
+The highly charged anchors above evolve naturally for some time before a single anchor apparently saturates. This the resulting coloration of the visualization darkens significantly probably because I have scaled the brightness values of each epoch frame such that the minimum value pixel is the darkest blue and the maximum value pixel is the brightest yellow. In other words, though the training images look strange, most of the anchors are probably evolving normally. In the end, this model yields a testing accuracy of 95.8% and a training accuracy of 97.2%, essentially identical to the _q_ = 0.001 case. It appears that in the high-dimensional space of MNIST, anchors just need a small amount of charge to avoid degeneracy problems, and are mostly insensitive to increases in charge magnitude because crowding is not a problem when there are a large number of dimensions to inhabit.
 
 [Back to top](#Contents)
-
-### Performance
-
-### Comparison with simple Neural Network
-
-### Visualizing learned decision boundaries with UMAP
-
----
-
-## The Future
-
-Hierarchical classification with multi-label classification. Change the softmax output into a collection of sigmoids with corresponding cross entropy losses.
-
-Specify different number of anchors per class.
-
-Negative anchors: The work we have discussed so far applies well when our data lives in a [simply connected space](https://en.wikipedia.org/wiki/Simply_connected_space) or a union of several such spaces; in other words, blobs of data are good, but holes in those blobs cause problems. Because our distance function increases as we move away from any particular anchor, the only way to
-
-Grant a trainable weight to each anchor (to make some more important than others), and take a weighted geometric mean of cosine distances rather than a basic product of distances.
-
-Dynamically add or remove anchors during training with a kind of drop-out regularization.
 
 ---
 
 ## Conclusion
 
-* Advantages
-  * straightforward interpretation
-  * intuitive initialization
-  * better performance than vanilla NN with same number of parameters? [WRONG]
+The method of **_charged anchor vector optimization_**, though not state-of-the-art in model performance standards, can grant us insights into the way machine learning models can _learn_. We've seen how anchor vectors move in space when searching for the best data representations. We've applied this method to a simplistic binary classification task in low-dimensional space with toy data, as well as a more complex multiclass high-dimensional classification task with real-world image data. We've learned how overcrowding can limit the usefulness of _charge regularization_ in low-dimensional space, but also how charge regularization can provide an easy solution to degenerate anchor sets. **_Where can we go from here?_**
 
+Below are just a few ideas for future exploration:
+
+  1. **Multi-label & hierarchical classification**
+    * If we change the softmax output of the multiclass classification model into a stack of sigmoids, we can assign each example to any number of classes. Rather than training a multiclass model, this is like training a collection of binary classification models. The resulting loss would be a sum of cross entropies over all the binary classifiers. Implementing such a model structure would allow us to represent [multi-label](https://en.wikipedia.org/wiki/Multi-label_classification) problems as well as hierarchical problems where each category could be made of subcategories.
+
+  2. **Weighted anchors**
+    * In our exploration of anchor vector distance functions, we considered only functions where each anchor was treated equally, but we could have formulated the distance measure differently. Instead of taking a distance _product_, we could have taken a [_geometric mean_](https://en.wikipedia.org/wiki/Geometric_mean) of distances, where a product of _N_ factors is then taken to the _N_-th root. Under this metric, each factor could be weighted to a different fractional power to grant more influence to some anchors than others in determining the distance from an anchor set. If we promote those weights to model parameters, a model could be trained to learn the best possible weights that represent the data distribution.    
+
+  3. **Negative anchors**
+    * Our distance function only ever considered anchors as positive contributors to the function: the closer to any anchor, the better. This has the problem that if data lies in a hollow ring rather than a solid cluster, for example, many anchors would need to surround the ring's perimeter to get close to a good approximation of the data distribution. This comes down to the fact that all the work we have discussed so far applies well only when our data lives in a [simply connected space](https://en.wikipedia.org/wiki/Simply_connected_space) or a union of several such spaces; in other words, blobs of data are good, but holes in those blobs cause problems. One way to tackle this problem is to introduce _negative anchors_ to the anchor set of a given class, anchors from which distance is explicitly defined opposite of positive anchors: the farther away you are from a negative anchor, the better. The ring problem can be easily solved if an anchor set has 2 anchors, one positive and one negative, each with different sigmoid coefficients determining their relative contribution to the class probability.
+
+  4. **Charge learning**
+    * Every anchor in our analysis had the same charge _q_, but we could have also made _q_ specific to the class or particular anchor. We could even promote anchor charges to model parameters that need to be learned during training.
+
+  5. **Interclass interaction**
+    * In our multiclass example, charged anchors only interacted with other anchors of the same class. Why not introduce charge that allows anchors of different class to interact with each other?  
+
+  6. **Variable anchor count**
+    * For simplicity, I enforced that every class have the same number of anchors, but we could also elect to have a different number of anchors for each class. We could even implement something akin to [dropout regularization](https://en.wikipedia.org/wiki/Dropout_(neural_networks%29) to enforce that during training some anchors have to be ignored sometimes. We could dynamically add or remove anchors during training to learn how many anchors a class really needs so that it doesn't overfit or underepresent the complexity of the inherent data distribution.
+
+
+If you made it this far, congrats! Thanks for taking the time to read this. If you have any comments or questions, please feel free to contact me.
+
+[Back to top](#Contents)
 ---
 
 
@@ -475,8 +485,8 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [multi-p10-q0.001-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
 [multi-p10-q0.001-a0.1-randF-cost]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=False/cost.png
 
-[multi-p10-q0.001-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/parameter_snapshots_animation.gif
-[multi-p10-q0.001-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/umap_snapshots_animation.gif
+[multi-p10-q0.001-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/parameter_animation.gif
+[multi-p10-q0.001-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/umap_animation.gif
 [multi-p10-q0.001-a0.1-randT-cost]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/cost.png
 
 
@@ -488,3 +498,7 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [multi-p20-q0.001-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=20,%20q=1E-03,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
 [multi-p20-q0.001-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=20,%20q=1E-03,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
 [multi-p20-q0.001-a0.1-randF-cost]:images/anchor_training_multiclass/p=20,%20q=1E-03,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p20-q0.1-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=20,%20q=1E-01,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p20-q0.1-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=20,%20q=1E-01,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p20-q0.1-a0.1-randF-cost]:images/anchor_training_multiclass/p=20,%20q=1E-01,%20alpha=1E-01,%20random_init=False/cost.png
