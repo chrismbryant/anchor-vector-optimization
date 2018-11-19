@@ -8,6 +8,9 @@
   * [Building a Predictive Model](#building-a-predictive-model)
   * [Learning](#learning)
 * [Multiclass Classification: MNIST](#multiclass-classification:-mnist)
+  * [Distance Function, revisited](#distance-function,-revisited)
+  * [Generalizing our Predictive Model](#generalizing-our-predictive-model)
+  * [Learning to Classify Handwritten Digits](#learning-to-classify-handwritten-digits)
 
 
 
@@ -184,25 +187,156 @@ The _q_ = 0.1 scenario yields a similar result to the _q_ = 0.01 case, but becau
 
 ## Multiclass Classification: MNIST
 
-Now that we've tried out the learning procedure on an easily-visualizable toy binary model, we are ready to generalize anchor-vector learning to the _multiclass classification_ problem. To examine this concretely, we will consider the classic problem of handwritten digit recognition using the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Here we tackle directly the question I referenced in the introduction to this investigation: can we create a machine learning model which reflects our intuitive understanding of learning concepts through the refinement of archetypal ideals?
+Now that we've tried out the learning procedure on an easily-visualizable toy binary model, we are ready to generalize anchor-vector learning to the _multiclass classification_ problem. To examine this concretely, we will consider the classic problem of handwritten digit recognition using the [MNIST dataset](http://yann.lecun.com/exdb/mnist/). Here we tackle directly the question I referenced in the introduction to this investigation: can we create a machine learning model which reflects our intuitive understanding of the process of learning concepts through the refinement of archetypal ideals?
 
-Suppose we have a multi-class dataset
-* pixel brightness
+[Back to top](#Contents)
 
+### Distance Function, revisited
 
-Consider the standard problem of handwritten digit recognition.
-* 28x28 square of grayscale pixels
-* unroll this into a vector embedded in 784-dimensional brightness-space where each dimension corresponds to one pixel and the value of the vector in that dimension is the brightness of the pixel, scaled between 0 and 1.
+We can make use of the same "distance product" function we developed for the binary classification case if we represent each handwritten digit as an embedding in some vector space. One simple way to do this is to unroll each 28x28-pixel grayscale image into a 784-dimensional vector. In this representation, each dimension in the vector space corresponds to the pixel at one position in the image, and the value of the image's vector in that dimension is the brightness of that pixel, scaled between 0 and 1. We can measure the similarity between a pair of images by taking the cosine of the angle between their vector representations.
 
-???
+Like before, to create a measure of distance between a single image and a set of anchor images, we can take the product of cosine distances between the first image and each image in the anchor image set. Since all our brightness values are positive, our problem set-up has the nice property that every image representation lies in the [_positive orthant_](https://en.wikipedia.org/wiki/Orthant) of the embedding space. This means that cosine distance between any two image vectors is bounded by 0 (most similar) and 1 (most different). This is good because the addition of a new very-different image to an already-existing anchor set won't affect the overall distance product: it's just another multiplication by 1.
 
+The only difference between the distance function in the binary case and in the multiclass case is that for each sample in the multiclass case, we want to know how far away that sample is from _each_ class it could possibly belong to. Instead of computing one distance product, we compute _K_ distance products—one for each of the _K_ classes.  
 
-### Distance Function
+[Back to top](#Contents)
+
+### Generalizing our Predictive Model
+
+Like in generalizing from logistic regression to [_multinomial_ logistic regression](https://en.wikipedia.org/wiki/Multinomial_logistic_regression), we can generalize our binary prediction model by promoting the probability output function from a sigmoid to a [softmax function](https://en.wikipedia.org/wiki/Softmax_function). While a sigmoid function maps from a real-valued scalar logit to a probability value between 0 and 1, the softmax function maps from a real-valued _K_-dimensional vector to a new _K_-dimensional vector where all the vector's components sum to 1 (the sigmoid function can be thought of as simply the first component of a 2D softmax). Readers familiar with statistical mechanics may recognize the softmax function from the [canonical ensemble](https://en.wikipedia.org/wiki/Canonical_ensemble), which assigns a probability to each possible distinct microstate of a thermodynamic system.
 
 ![y_hat_multiclass]
+
+The above set of equations describes our new _K_-class prediction model. The first line shows how a prediction _Y-hat_ assigns a _K_-dimensional vector of probabilities to each example vector **_x<sub>i</sub>_**. While the binary case had two scalar linear mapping parameters _b_ and _w_, in the _K_-class case, here both **_b_** and **_w_** are _K_-dimensional vectors (the _Br()_ notation simply indicates that the vector **_b_** is broadcast across all examples; this is mostly to keep the index notation consistent). The second line explicitly defines a softmax function acting on an arbitrary _K_-dimensional vector **_z_**. The third line shows the multiclass distance function, which is only different from the binary case in that the anchor vector collection is indexed with a new letter _p_, the number of anchors per class. While it would be possible to specify a different number of anchors for each class, for simplicity we will just assume the case where each class _P_ anchors. The fourth line is exactly the same pairwise cosine distance defined for the binary case.
+
+Like before, with the generalized prediction model now in place, we need to define a cost function so that we can estimate the values of all the unknown parameters **_b_**, **_w_**, and **_A_**.
+
 ![J_multiclass]
-![blocks_multiclass]
+
+Above, I define the cost function _J_ as a sum of average prediction loss _L_ and regularization loss _J<sub>reg</sub>_). The prediction loss _L_ defined on line 2 is just a generalized form of the same [cross entropy](https://en.wikipedia.org/wiki/Cross_entropy) loss I used in the binary case. The regularization loss again is just the same L2 parameter regularization and "charge regularization" I used before, but now with an added _k_ index. The way to interpret the second term of this equation on line 3 is that the larger the charge _q_, the greater the repulsion between any two anchor vectors **_a_** belonging to the same class _k_. The way I have it written, anchors can only interact if they belong to the same class; there is no penalty associated with anchors of different classes being close together. Finally, the line 4 repeats the definition of cosine similarity between two vectors.  
+
+For fun, we can combine everything together into two big equations to see all the math that has gone into this multiclass model. Below, I give you the prediction model and loss function in full index notation:
+
 ![index_notation_multiclass]
+
+When we have to implement this all in code, it's useful to be able to see these low-level details so that we can better understand how to [vectorize](https://en.wikipedia.org/wiki/Array_programming) our code (i.e. write it in a fashion where we can apply operations to whole arrays of numbers at once). To obviate the relationship between each vectorized object and the indices I use to represent it, here is a visual representation of the major objects at play:
+
+![blocks_multiclass]
+
+Notice that while the input **X** is the same as in the binary case, with _m_ examples and _n_ features (here, each example is an image and the features of each example are the 784-dimensional vector of pixel brightness values), both **A** and **Y** have gained an extra dimension. The collection output predictions is now a matrix **Y** because each of the _m_ input examples has to get mapped to _K_ prediction values, one for each class.  
+
+The anchor matrix **A** is now an array of depth _K_, where each of the _K_ sheets contains _P_ anchor vectors, each with _n_ components. The way I have notated it, each anchor vector **_a<sub>kp</sub>_** gets two indices, the first one indicating which class it belongs to, and the second one indicating which anchor vector in that class it is. When I refer to the brightness of a single pixel of one of these anchor vectors, I use the full 3-index array notation: _A<sub>kpj</sub>_ is the brightness of the _j_-th pixel of the _p_-th anchor of the _k_-th class. The symbol **A** refers to the whole collection of anchor vector pixel values.
+
+[Back to top](#Contents)
+
+### Learning to Classify Handwritten Digits
+
+#### 1 anchor per class
+
+To start off, we can give each class just one anchor vector to work with. Before we even allow the anchor vectors to move, it may be interesting to see what happens if we train only learn the softmax parameters **w** and **b** given a fixed set of anchors.
+
+![multi-p1-q0-a0.1-randF-fixA-anchors]
+
+Using the above randomly drawn training samples as the anchor set, the learning procedure gets us about 51.5% test accuracy. This isn't _terrible_ because a model working completely at random should give us about 10% accuracy, but it's still not great (or even good). To see how the same model performs when we allow the anchors to move throughout the training process, we can try both a randomly initialized anchor set as well as a "sample-initialized" anchor set. Below, I have displayed a visualization of the anchor vectors from training epochs 0 through 50. [**Note:** in all the digit images below, the colors have been scaled such that in each epoch frame, the minimum pixel value is mapped to the darkest blue and the maximum pixel value is mapped to the brightest yellow.]
+
+**With Random Initialization**
+![multi-p1-q0-a0.1-randT-paramgif]
+
+**With Sample Initialization**
+![multi-p1-q0-a0.1-randF-paramgif]
+
+Notice that even though the initializations are completely different, the final learned anchors look very similar. Notice also that the anchor images very quickly diverge from their initial state into shapes that are just barely recognizable as digits, as though all the possible variations of each digit have been smeared together. Perhaps surprisingly, with only one trainable anchor vector per class, we get about 92% test accuracy (93% training accuracy) with both initializations, already yielding a dramatic improvement over the fixed anchor scenario!
+
+Diving a little deeper, we can try to visualize the anchor vector motion over time using the dimensionality-reduction technique called [UMAP](https://github.com/lmcinnes/umap) (as an aside, UMAP is, in my opinion, a _groundbreaking_ new technique [Feb 2018] for nonlinear dimensionality reduction that anybody who uses t-SNE should try out; it's _fast_, mathematically well-motivated, easy to implement in Python, and looks great). When a UMAP model is fit, it learns a non-linear mapping that can be applied to examples that are not in the training set used to fit it. Using a random sample of 50,000 examples from the combined training and testing MNIST dataset, UMAP into 2D reveals this structure:
+
+![umap]
+
+UMAP tries to preserve both the local and global structure of the original data, inferring the structure of the manifold on which the original data lies, and trying to best represent it when it maps the data to a lower-dimensional space. Similar examples should be close together and very different examples should be far apart in the final space. Notice that the orange cluster of 1s in the above plot is elongated while the blue cluster of 0s is round; this reflects the fact that 1s can be leftward or rightward leaning (and continuously deformed in between), while 0s have an approximate continuous rotational symmetry. The 1 and 0 clusters are also far apart, indicating that they probably don't have many pixel values in common. The cluster of 4s and 9s near the top, however, are very close together because those two digits look very similar (share many pixel values).
+
+We can apply this trained UMAP mapping to visualize the intermediate anchor vector positions throughout training in a different way that is perhaps more akin to the training visualizations I created for the binary classification case earlier. Below I've displayed an animated GIF for each of the anchor vector models trained so far (with random initialization and without). Notice that for the model with anchors initialized as training examples, the anchor corresponding to each digit stayed mostly within its corresponding UMAP cluster through training. The randomly-initialized anchors, on the other hand, sometimes ended up in different clusters. In both cases, even though the training cost and visual appearance of the anchor images settled over time, the UMAP mappings of the anchors jitter incessantly. This may be because the anchors, with their appearance that is so unlike any real example, lie so far off the manifold on which the real data lives that the UMAP mapping is subject to a significant amount of noise. Small variations in anchor appearance when that far off the manifold could lead to large variations in projected representation when in the dimensionally-reduced space.
+
+|Random Initialization?| Training and Testing Error Over Time | UMAP Training Visualization|
+|:---:|:---:|:---:|
+|False|<img src="images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png" width="650"/>|![multi-p1-q0-a0.1-randF-umapgif] |
+|True|<img src="images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=True/cost.png" width="650"/>|![multi-p1-q0-a0.1-randT-umapgif] |
+
+#### 3 anchors per classes
+
+Let's check to see how the naive fixed-anchor learning procedure behaves with 3 sample-initialized anchors per class:
+
+![multi-p3-q0-a0.1-randF-fixA-anchors]
+
+After training the softmax parameters, this 3-anchor-per-class model get us 64.2% test accuracy, a good sign, since it's an improvement over the fixed 1-anchor-per-class model.
+
+Again, let's see how random initialization vs. sample initialization changes the learning procedure when we allow the anchors to move:
+
+**With Random Initialization**
+![multi-p3-q0-a0.1-randT-paramgif]
+
+**With Sample Initialization**
+![multi-p3-q0-a0.1-randF-paramgif]
+
+What I find especially interesting about the above two visualizations is that, for some classes, the random initialization appears to have generated a set of learned anchors that are inverted with respect to those generated from the sample-initialization because of the flexibility of the softmax parameters (see the 0 anchors, for example). Note also that the random initialization case led to a higher degeneracy of anchors than in the sample initialization case (see the 1 anchors, for example), though there is still some diversity in representations resulting from the random initialization (see the 5 anchors, for example).
+
+In both cases, despite the difference in learned anchor appearance, both 3-anchor-per-class initializations led to the same test accuracy of about 93.6% and training accuracy of 94.5%. At this stage, it is not clear whether sample initialization has any advantages over random initialization, through we are starting to see that there is slight overfitting regardless of the initialization. I won't show it here, but again we see similar behavior with the UMAP reduction, where the sample-initialized anchors tend to stay more in their own clusters than the randomly initialized anchors.
+
+Now that we have multiple anchors, we can start to explore the effect that **anchor charge** has on the learning process.
+
+**With _q_ = 0.1:**
+
+![multi-p3-q0.1-a0.1-randF-paramgif]
+
+With the relatively large charge value of 0.1, the training process appears to essentially _forget_ some of the anchors, removing their contrast until the anchor image no longer has strong features. After this training process, the model produced a test accuracy of 94.0% and training accuracy of 94.8%, again a slight improvement.
+
+#### 10 anchors per class
+
+When we moved from 1 fixed anchor to 3 fixed anchors per class, we saw that the softmax training procedure generated an increase from about 52% to 64% test accuracy. I'm surprised to see that with 10 fixed anchors per class, the accuracy actually _drops_ significantly to about 20% on both the training and testing set.
+
+Performing sample- vs. random-initialization for the 10-anchor-per-class model also yields very different results from what we have seen before:
+
+| With Sample Initialization | With Random Initialization|
+|:---:|:---:|
+|![multi-p10-q0-a0.1-randF-paramgif]|![multi-p10-q0-a0.1-randT-paramgif]|
+
+While the sample initialization generates the kind of smooth morphing effect we would expect, the random initialization immediately saturates at a distorted configuration that is nearly degenerate within each class. Here it is apparent that sample initialization is important for pointing the anchors in the right direction so they have some "idea" of where to go.
+
+As we might have expected, the sample-initialized model yielded another improvement in accuracy, now 95.6% on the test set and 96.9% on the training set, whereas the randomly initialized model had random performance around 10%.
+
+We saw improvement in classification accuracy when we added charge to the 3-anchor-per-class case, so will it have the same effect on the 10-anchor-per-class case?
+
+**With _q_ = 0.1:**
+
+| With Sample Initialization | With Random Initialization|
+|:---:|:---:|
+|![multi-p10-q0.1-a0.1-randF-paramgif]|![multi-p10-q0.1-a0.1-randT-paramgif]|
+
+Like in the 3-anchor-per-class case, we see some anchors fade away here and others increase in contrast. However, in this case, some anchors get pushed to very high contrast states (e.g. the 8 anchor near the top right and the 4 anchor on the bottom row of the "with sample initialization" visualization). Because of the way I've chosen to scale the colors (to the minimum and maximum pixel value in each epoch, rather than the minimum and maximum pixel value in each anchor), this has the effect of reducing the contrast in all the other anchor visualizations. Adding charge has also managed to push the randomly initialized case into a non-degenerate final state, since the model is penalized for pushing anchors too close together.
+
+Though the visualizations look odd, adding charge actually slightly increased the performance yet again to 95.8% test accuracy (96.9% train) for the sample initialized model. It also allowed the randomly initialized model to reach nearly the same level of performance with 95.2% test accuracy (96.3% train).
+
+**With _q_ = 0.001:**
+
+| With Sample Initialization | With Random Initialization|
+|:---:|:---:|
+|![multi-p10-q0.001-a0.1-randF-paramgif]|![multi-p10-q0.001-a0.1-randT-paramgif]|
+
+For comparison, I've displayed above what happens when the anchor charge is 1/100 the size of the previous _q_ = 0.1 case.
+
+[ ????????????????? Notice ?????????????????????]
+
+#### 20 anchors per class
+
+At 20 anchors per class, we now have double the number of anchors representing each class as there are number of classes. Below, I have displayed what the sample-initialized training procedure looks like in this situation with two different charge values:
+
+| _q_ = 0 | q = 0.001|
+|:---:|:---:|
+|![multi-p20-q0-a0.1-randF-paramgif]|![multi-p20-q0.001-a0.1-randF-paramgif]|
+
+q = 0: test - 85.7%, train - 86.9%
+q = 0.001 test - 95.7%, train - 97.3%
+
+[Back to top](#Contents)
+
 ### Performance
 
 ### Comparison with simple Neural Network
@@ -286,3 +420,71 @@ Dynamically add or remove anchors during training with a kind of drop-out regula
 [binary-p10-q0.01-cost]:images/anchor_training/p=10,%20q=0.01,%20alpha=0.01/cost.png
 [binary-p10-q0.001-cost]:images/anchor_training/p=10,%20q=0.001,%20alpha=0.01/cost.png
 [binary-p10-q0-cost]:images/anchor_training/p=10,%20q=0,%20alpha=0.01/cost.png
+
+
+
+[umap]:images/anchor_training_multiclass/umap.png
+
+[multi-p1-q0-a0.1-randF-fixA-anchors]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False,%20learn_A=False/learned_anchors.png
+
+[multi-p1-q0-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p1-q0-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p1-q0-a0.1-randF-cost]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p1-q0-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=True/parameter_snapshots_animation.gif
+[multi-p1-q0-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=True/umap_snapshots_animation.gif
+[multi-p1-q0-a0.1-randT-cost]:images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=True/cost.png
+
+
+
+[multi-p3-q0-a0.1-randF-fixA-anchors]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=False,%20learn_A=False/learned_anchors.png
+
+[multi-p3-q0-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p3-q0-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p3-q0-a0.1-randF-cost]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p3-q0-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=True/parameter_snapshots_animation.gif
+[multi-p3-q0-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=True/umap_snapshots_animation.gif
+[multi-p3-q0-a0.1-randT-cost]:images/anchor_training_multiclass/p=03,%20q=0E+00,%20alpha=1E-01,%20random_init=True/cost.png
+
+[multi-p3-q0.1-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=03,%20q=1E-01,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p3-q0.1-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=03,%20q=1E-01,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p3-q0.1-a0.1-randF-cost]:images/anchor_training_multiclass/p=03,%20q=1E-01,%20alpha=1E-01,%20random_init=False/cost.png
+
+
+
+[multi-p10-q0-a0.1-randF-fixA-anchors]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False,%20learn_A=False/learned_anchors.png
+
+[multi-p10-q0-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p10-q0-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p10-q0-a0.1-randF-cost]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p10-q0-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=True/parameter_snapshots_animation.gif
+[multi-p10-q0-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=True/umap_snapshots_animation.gif
+[multi-p10-q0-a0.1-randT-cost]:images/anchor_training_multiclass/p=10,%20q=0E+00,%20alpha=1E-01,%20random_init=True/cost.png
+
+[multi-p10-q0.1-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=10,%20q=1E-01,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p10-q0.1-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-01,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p10-q0.1-a0.1-randF-cost]:images/anchor_training_multiclass/p=10,%20q=1E-01,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p10-q0.1-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=10,%20q=1E-01,%20alpha=1E-01,%20random_init=True/parameter_snapshots_animation.gif
+[multi-p10-q0.1-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-01,%20alpha=1E-01,%20random_init=True/umap_snapshots_animation.gif
+[multi-p10-q0.1-a0.1-randT-cost]:images/anchor_training_multiclass/p=10,%20q=1E-01,%20alpha=1E-01,%20random_init=True/cost.png
+
+[multi-p10-q0.001-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p10-q0.001-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p10-q0.001-a0.1-randF-cost]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p10-q0.001-a0.1-randT-paramgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/parameter_snapshots_animation.gif
+[multi-p10-q0.001-a0.1-randT-umapgif]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/umap_snapshots_animation.gif
+[multi-p10-q0.001-a0.1-randT-cost]:images/anchor_training_multiclass/p=10,%20q=1E-03,%20alpha=1E-01,%20random_init=True/cost.png
+
+
+
+[multi-p20-q0-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=20,%20q=0E+00,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p20-q0-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=20,%20q=0E+00,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p20-q0-a0.1-randF-cost]:images/anchor_training_multiclass/p=20,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png
+
+[multi-p20-q0.001-a0.1-randF-paramgif]:images/anchor_training_multiclass/p=20,%20q=1E-03,%20alpha=1E-01,%20random_init=False/parameter_snapshots_animation.gif
+[multi-p20-q0.001-a0.1-randF-umapgif]:images/anchor_training_multiclass/p=20,%20q=1E-03,%20alpha=1E-01,%20random_init=False/umap_snapshots_animation.gif
+[multi-p20-q0.001-a0.1-randF-cost]:images/anchor_training_multiclass/p=20,%20q=1E-03,%20alpha=1E-01,%20random_init=False/cost.png
