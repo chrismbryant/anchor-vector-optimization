@@ -260,10 +260,10 @@ UMAP tries to preserve both the local and global structure of the original data,
 
 We can apply this trained UMAP mapping to visualize the intermediate anchor vector positions throughout training in a different way that is perhaps more akin to the training visualizations I created for the binary classification case earlier. Below I've displayed an animated GIF for each of the anchor vector models trained so far (with random initialization and without). Notice that for the model with anchors initialized as training examples, the anchor corresponding to each digit stayed mostly within its corresponding UMAP cluster through training. The randomly-initialized anchors, on the other hand, sometimes ended up in different clusters. In both cases, even though the training cost and visual appearance of the anchor images settled over time, the UMAP mappings of the anchors jitter incessantly. This may be because the anchors, with their appearance that is so unlike any real example, lie so far off the manifold on which the real data lives that the UMAP mapping is subject to a significant amount of noise. Small variations in anchor appearance when that far off the manifold could lead to large variations in projected representation when in the dimensionally-reduced space.
 
-|Random Initialization?| Training and Testing Error Over Time | UMAP Training Visualization|
+|Initialization| Training and Testing Error Over Time | UMAP Training Visualization|
 |:---:|:---:|:---:|
-|False|<img src="images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png" width="650"/>|![multi-p1-q0-a0.1-randF-umapgif] |
-|True|<img src="images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=True/cost.png" width="650"/>|![multi-p1-q0-a0.1-randT-umapgif] |
+|Sample|<img src="images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=False/cost.png" width="650"/>|![multi-p1-q0-a0.1-randF-umapgif] |
+|Random|<img src="images/anchor_training_multiclass/p=01,%20q=0E+00,%20alpha=1E-01,%20random_init=True/cost.png" width="650"/>|![multi-p1-q0-a0.1-randT-umapgif] |
 
 #### 3 anchors per classes
 
