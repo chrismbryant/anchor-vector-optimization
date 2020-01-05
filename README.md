@@ -222,7 +222,7 @@ For fun, we can combine everything together into two big equations to see all th
 
 ![index_notation_multiclass]
 
-When we have to implement this all in code, it's useful to be able to see these low-level details so that we can better understand how to [vectorize](https://en.wikipedia.org/wiki/Array_programming) our code (i.e. write it in a fashion where we can apply operations to whole arrays of numbers at once). To obviate the relationship between each vectorized object and the indices I use to represent it, here is a visual representation of the major objects at play:
+When we have to implement this all in code, it's useful to be able to see these low-level details so that we can better understand how to [vectorize](https://en.wikipedia.org/wiki/Array_programming) our code (i.e. write it in a fashion where we can apply operations to whole arrays of numbers at once). To make more obvious the relationship between each vectorized object and the indices I use to represent it, here is a visual representation of the major objects at play:
 
 ![blocks_multiclass]
 
